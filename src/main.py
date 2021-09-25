@@ -1,5 +1,4 @@
 import csv
-from collections import deque
 
 class Edge:
     def __init__(self, weight, destiny):

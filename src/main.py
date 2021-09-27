@@ -2,6 +2,9 @@ from models import Graph
 import csv
 
 def create_graph():
+    """
+    Funcao que faz a leitura dos arquivos csv's e cria o grafo a partir desses dados
+    """
     graph = Graph()
 
     with open('data/usuarios.csv') as csvfile:
@@ -19,6 +22,9 @@ def create_graph():
     return graph
 
 def test_graph(graph):
+    """
+    Funcao que exibe as informacoes da rede
+    """
     print(f'Seguidores da Helena: {graph.get_number_of_users_followers_by_user("helena42")}')
     print(f'Pessoas que a Helena segue: {graph.get_number_of_users_following_by_user("helena42")}')
     print(f'Ordem dos stories da Helena: {graph.get_order_stories("helena42")}')
@@ -26,6 +32,9 @@ def test_graph(graph):
     print(f'Caminho de Helena até Isadora: {graph.get_path("helena42", "isadora45")}')
 
 def main():
+    """
+    Funcao principal do projeto
+    """
     graph = create_graph()
 
     test_graph(graph)

@@ -1,13 +1,28 @@
 class Edge:
+    """
+    Classe que representa as conexoes entre os nos (aresta)
+    """
     def __init__(self, weight, destiny):
+        """
+        Metodo construtor da classe
+        """
         self.weight = weight
         self.destiny = destiny
 
     def __repr__(self):
+        """
+        Sobrescrita do metodo __repr__ que representa a classe como uma string
+        """
         return f'{self.destiny.username}: {self.weight}'
 
 class Node:
+    """
+    Classe que representa os nos (usuarios da rede)
+    """
     def __init__(self, name, username):
+        """
+        Metodo construtor da classe
+        """
         self.name = name
         self.username = username
         self.following = {}
@@ -16,9 +31,15 @@ class Node:
         self.parent = None
     
     def __repr__(self):
+        """
+        Sobrescrita do metodo __repr__ que representa a classe como uma string
+        """
         return f'{self.name}: {self.username}'
     
     def add_following(self, weight, node):
+        """
+        Metodo que adiciona uma conexao com peso (1 = amigo comum, 2 = melhor amigo). Se a conexao ja existir, apenas atualiza o peso
+        """
         if self.following.get(node.username):
             edge = self.following.get(node.username)
 
@@ -27,39 +48,70 @@ class Node:
             self.following[node.username] = Edge(weight, node)
 
     def add_followers(self, node):
+        """
+        Metodo que adiciona um seguidor
+        """
         self.followers[node.username] = node
     
     def get_following(self):
+        """
+        Metodo que retorna os usuarios que este no (usuario) segue
+        """
         return self.following
     
     def get_followers(self):
+        """
+        Metodo que retorna os seguidores deste no (usuario)
+        """
         return self.followers
     
     def get_number_of_users_following(self):
+        """
+        Metodo que retorna o numero de usuarios que este no (usuario) segue
+        """
         return len(self.following)
     
     def get_number_of_users_followers(self):
+        """
+        Metodo que retorna o numero de usuarios seguidores deste no (usuario)
+        """
         return len(self.followers)
     
-    # Retorna um usuario que este usuario siga a partir do username 
     def get_following_by_username(self, username):
+        """
+        Metodo que retorna um usuario que este usuario siga a partir do username 
+        """
         return self.following.get(username)
     
-    # Retorna um usuario que siga este usuario a partir do username 
     def get_followers_by_username(self, username):
+        """
+        Metodo que retorna um usuario que siga este usuario a partir do username
+        """
         return self.followers.get(username)
 
 class Graph:
+    """
+    Classe que representa o grado (rede)
+    """
     def __init__(self):
+        """
+        Metodo construtor da classe
+        """
         self.nodes = {}
-    
+
     def add_user(self, name, username):
+        """
+        Metodo que adiciona um usuario a rede
+        """
         if not self.get_user_by_username(username):
             self.nodes[username] = Node(name, username)
 
         return self.get_user_by_username(username)
     
     def add_connection(self, origin_username, destiny_username, weight):
+        """
+        Metodo que adiciona uma conexao a rede
+        """
         if self.get_user_by_username(origin_username) and self.get_user_by_username(destiny_username):
             origin = self.get_user_by_username(origin_username)
 
@@ -70,21 +122,39 @@ class Graph:
             destiny.add_followers(origin)
     
     def get_user_by_username(self, username):
+        """
+        Metodo que retorna o usuario pelo username
+        """
         return self.nodes.get(username)
     
     def get_number_of_users_following_by_user(self, username):
+        """
+        Metodo que retorna pelo username o numero de usuarios seguidos por um usuario
+        """
         return len(self.get_user_by_username(username).get_following())
     
     def get_number_of_users_followers_by_user(self, username):
+        """
+        Metodo que retorna pelo username o numero de usuarios seguidores de um usuario
+        """
         return len(self.get_user_by_username(username).get_followers())
     
     def get_order_stories(self, username):
+        """
+        Metodo que retorna pelo username os stories ordenados de um usuario
+        """
         return [edge.destiny.username for edge in self.merge_sort('stories', username)]
 
     def get_top_influencers(self, k):
+        """
+        Metodo que retorna os k usuarios mais seguidos da rede
+        """
         return {influencer.username: influencer.get_number_of_users_followers() for influencer in self.merge_sort('top')[:k]}
 
     def get_path(self, username_1, username_2):
+        """
+        Metodo que retorna o caminho entre dois usuarios na rede
+        """
         self.breadth_first_search(username_1, username_2)
 
         path = ''
@@ -102,6 +172,9 @@ class Graph:
         return path
 
     def merge_sort(self, method, username=None, list_to_sort=None):
+        """
+        Metodo que ordena os usuario a partir do Merge Sort
+        """
         if not list_to_sort:
             if method == 'stories':
                 user = self.get_user_by_username(username)
@@ -110,6 +183,7 @@ class Graph:
 
                 list_to_sort = list(following.values())
             else:
+                # method == 'top'
                 list_to_sort = list(self.nodes.values())
 
         if len(list_to_sort) == 1:
@@ -124,6 +198,9 @@ class Graph:
         return self.merge(method, username, left, right)
 
     def merge(self, method, username, left, right):
+        """
+        Metodo auxiliar do Merge Sort que une as sublistas
+        """
         user = self.get_user_by_username(username)
 
         list_sorted = []
@@ -169,6 +246,9 @@ class Graph:
         return list_sorted
     
     def breadth_first_search(self, username1, username2):
+        """
+        Metodo que faz a Busca em Largura para encontrar o caminho entre dois usuarios
+        """
         root = self.get_user_by_username(username1)
 
         root.color = 'gray'

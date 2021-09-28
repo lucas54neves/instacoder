@@ -26,7 +26,7 @@ class Node:
         self.name = name
         self.username = username
         self.following = {}
-        self.followers = {}
+        self._followers = {}
         self.color = 'white'
         self.parent = None
     
@@ -36,34 +36,37 @@ class Node:
         """
         return f'{self.name}: {self.username}'
     
-    def add_following(self, weight, node):
+    @property
+    def connections(self):
+        """
+        Metodo que retorna os usuarios que este no (usuario) segue
+        """
+        return self.following
+    
+    @connections.setter
+    def connections(self, data):
         """
         Metodo que adiciona uma conexao com peso (1 = amigo comum, 2 = melhor amigo). Se a conexao ja existir, apenas atualiza o peso
         """
+        weight, node = data
+
         if self.following.get(node.username):
             edge = self.following.get(node.username)
 
             edge.weight = weight
         else:
             self.following[node.username] = Edge(weight, node)
+    
+    @property
+    def followers(self):
+        return self._followers
 
-    def add_followers(self, node):
+    @followers.setter
+    def followers(self, node):
         """
         Metodo que adiciona um seguidor
         """
         self.followers[node.username] = node
-    
-    def get_following(self):
-        """
-        Metodo que retorna os usuarios que este no (usuario) segue
-        """
-        return self.following
-    
-    def get_followers(self):
-        """
-        Metodo que retorna os seguidores deste no (usuario)
-        """
-        return self.followers
     
     def get_number_of_users_following(self):
         """
@@ -99,27 +102,45 @@ class Graph:
         """
         self.nodes = {}
 
-    def add_user(self, name, username):
+
+    @property
+    def users(self):
+        """
+        Metodo que retorna os usuarios
+        """
+        return self.nodes
+
+    @users.setter
+    def users(self, data):
         """
         Metodo que adiciona um usuario a rede
         """
+        name, username = data
+
         if not self.get_user_by_username(username):
             self.nodes[username] = Node(name, username)
 
         return self.get_user_by_username(username)
+
+    @property
+    def connections(self):
+        return {username: user.connections for username, user in self.users.items()}
     
-    def add_connection(self, origin_username, destiny_username, weight):
+    @connections.setter
+    def connections(self, data):
         """
         Metodo que adiciona uma conexao a rede
         """
+        origin_username, destiny_username, weight = data
+
         if self.get_user_by_username(origin_username) and self.get_user_by_username(destiny_username):
             origin = self.get_user_by_username(origin_username)
 
             destiny = self.get_user_by_username(destiny_username)
 
-            origin.add_following(weight, destiny)
+            origin.connections = weight, destiny
 
-            destiny.add_followers(origin)
+            destiny.followers = origin
     
     def get_user_by_username(self, username):
         """
@@ -131,13 +152,13 @@ class Graph:
         """
         Metodo que retorna pelo username o numero de usuarios seguidos por um usuario
         """
-        return len(self.get_user_by_username(username).get_following())
+        return len(self.get_user_by_username(username).connections)
     
     def get_number_of_users_followers_by_user(self, username):
         """
         Metodo que retorna pelo username o numero de usuarios seguidores de um usuario
         """
-        return len(self.get_user_by_username(username).get_followers())
+        return len(self.get_user_by_username(username).followers)
     
     def get_order_stories(self, username):
         """
@@ -179,7 +200,7 @@ class Graph:
             if method == 'stories':
                 user = self.get_user_by_username(username)
 
-                following = user.get_following()
+                following = user.connections
 
                 list_to_sort = list(following.values())
             else:
@@ -258,7 +279,7 @@ class Graph:
         while queue:
             node = queue.pop(0)
 
-            list_of_adjacent = [edge.destiny for edge in list(node.get_following().values())]
+            list_of_adjacent = [edge.destiny for edge in list(node.connections.values())]
 
             for adjacent in list_of_adjacent:
                 if adjacent.color == 'white':

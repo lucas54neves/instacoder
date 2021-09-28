@@ -1,4 +1,4 @@
-# intacoders
+# InstaCoder
 
 ## Commands
 

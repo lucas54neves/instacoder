@@ -7,7 +7,8 @@ class GraphTests(unittest.TestCase):
     """
     def setUp(self):
         """
-        Metodo construtor da classe de teste
+        Metodo construtor da classe de teste. Cria o grafo a partir da funcao
+        que faz a leitura dos arquivos csv's e cria o grafo a partir dele.
         """
         self.graph = create_graph()
     

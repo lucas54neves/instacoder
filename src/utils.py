@@ -3,7 +3,11 @@ from models import Graph
 
 def create_graph():
     """
-    Funcao que faz a leitura dos arquivos csv's e cria o grafo a partir desses dados
+    Funcao que faz a leitura dos arquivos csv's e cria o grafo a partir desses
+    dados.
+
+    Returns:
+        Graph: Grafo criado a partir dos dados dos arquivos csv's.
     """
     graph = Graph()
 
